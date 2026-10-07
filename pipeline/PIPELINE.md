@@ -17,9 +17,9 @@ Check Metricool `getScheduledPosts` for the last 7 days first. Do not repeat a s
 2. **Choose.** One story. If nothing verifiable and useful, make a fallback app-feature post (below). Never post rumors as fact. Label unconfirmed items "Reported" and name the source in the slide footer.
 3. **Spec.** Write `spec.json` for 4 to 6 slides: slide 1 `hook`, middle slides `detail` or `point`, last slide `cta`. Keep text short. Always include the footer source line, including "US release dates" when dates are US dates.
 4. **Build.** `python3 -I vbslides.py spec.json out/`. Open EVERY slide image and check: no text overflow or overlap, nothing cut off, numbers match the sources. Fix the spec and rebuild until clean.
-5. **Upload.** Upload each PNG to the public repo `utomon/vb-media` under `p/<random16hex>/slide_N.png` through the GitHub contents API with the token. Confirm each raw.githubusercontent.com URL returns 200 image/png.
+5. **Upload.** Copy the PNGs into `p/<random16hex>/slide_N.png` in the attached clone of `utomon/vb-media`, commit and `git push` (the repo is attached with push access via add_repo; no token is used). Confirm each https://raw.githubusercontent.com/utomon/vb-media/main/p/<id>/slide_N.png URL returns 200 image/png.
 6. **Metricool draft.** `createScheduledPost` for brand 7192540 with `autoPublish: false`, `draft: true`, providers instagram + tiktok, `instagramData.type = POST`, `tiktokData.title` (required, under 90 chars), date = today 10:00 Asia/Jakarta, media = the raw URLs in order. Then call `getScheduledPosts` for today and confirm the post exists with 4 to 6 media URLs that start with static.metricool.com (proof Metricool copied them).
-7. **Clean up.** Delete the uploaded files from the repo (contents API DELETE with each file's sha) and remove the token from disk. Only do this after step 6 shows Metricool-hosted media URLs.
+7. **Clean up.** `git rm` the `p/<id>/` folder, commit and push. Only do this after step 6 shows Metricool-hosted media URLs.
 8. **Report.** Final message: game, story in one line, the sources, the Metricool planner link, and anything David should double check. Send the first slide image as a preview.
 
 ## Caption format
@@ -30,7 +30,7 @@ Line 1: hook with emoji (e.g. "Pokémon TCG October release dates 🗓️ (US da
 - No card art, character art or product photos are fetched. Slides are text-led with the app mockups only. If David supplies images, they come with his message, not from a scheduled run.
 - Do not use song lyrics, long quotes or article text. Paraphrase.
 - Do not publish, do not enable autoPublish, do not post to X or Facebook.
-- Never print or log the GitHub token. Delete it from disk at the end.
+- Never put credentials in files or messages. Repo access comes from add_repo, not a token.
 
 ## Fallback post (when there is no verified news)
 Use an app-feature post: slide 1 hook about one feature (page scan, depth effect cards, stickers and covers, price tracking, describe-a-card search, every game on one shelf), slide 2 to 3 `point` slides, last slide `cta`. Features must be real, taken from the App Store listing https://apps.apple.com/us/app/virtual-binder/id6798784324 (fetch it to confirm).
