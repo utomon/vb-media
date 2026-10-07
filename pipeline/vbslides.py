@@ -201,7 +201,32 @@ def cta(sp, idx, total, ft):
     return im
 
 
-BUILDERS = {"hook": hook, "detail": detail, "point": point, "cta": cta}
+def photo(sp, idx, total, ft):
+    """Headline + framed photo (supplied by David) + credit + one short line."""
+    im = canvas(); chrome(im, idx, total)
+    pill(im, (M, 190), sp["kicker"].upper())
+    y = 360
+    for ln in sp["lines"][:2]:
+        text(im, (M, y), ln.upper(), F(XB, 100), WHITE); y += 96
+    top, fw, fh = y - 40, W - 2 * M, 560
+    src = Image.open(os.path.abspath(sp["image"])).convert("RGBA")
+    sc = max(fw / src.width, fh / src.height)
+    src = src.resize((int(src.width * sc) + 1, int(src.height * sc) + 1), Image.LANCZOS)
+    ox, oy = (src.width - fw) // 2, (src.height - fh) // 2
+    src = src.crop((ox, oy, ox + fw, oy + fh))
+    mask = Image.new("L", (fw, fh), 0)
+    ImageDraw.Draw(mask).rounded_rectangle((0, 0, fw - 1, fh - 1), 28, fill=255)
+    im.paste(src, (M, top), mask)
+    ImageDraw.Draw(im).rounded_rectangle((M, top, M + fw - 1, top + fh - 1), 28, outline=(106, 80, 220), width=3)
+    if sp.get("credit"):
+        text(im, (M, top + fh + 36), "Image: " + sp["credit"], F(MED, 22), (110, 110, 130))
+    by = top + fh + 92
+    for ln in wrap(sp.get("body", ""), F(MED, 34), W - 2 * M)[:2]:
+        text(im, (M, by), ln, F(MED, 34), (205, 205, 220)); by += 46
+    footer(im, ft); return im
+
+
+BUILDERS = {"photo": photo, "hook": hook, "detail": detail, "point": point, "cta": cta}
 
 
 def build(spec, out):
@@ -209,7 +234,7 @@ def build(spec, out):
     slides = spec["slides"]; paths = []
     for i, sp in enumerate(slides, 1):
         im = BUILDERS[sp["type"]](sp, i, len(slides), spec.get("footer", "")).convert("RGB")
-        p = os.path.join(out, f"slide_{i}.png"); im.save(p, optimize=True); paths.append(p)
+        p = os.path.join(out, f"slide_{i}.jpg"); im.save(p, quality=90, optimize=True, subsampling=0); paths.append(p)
     return paths
 
 
