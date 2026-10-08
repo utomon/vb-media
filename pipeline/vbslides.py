@@ -249,7 +249,57 @@ def feature(sp, idx, total, ft):
     return im
 
 
-BUILDERS = {"feature": feature, "photo": photo, "hook": hook, "detail": detail, "point": point, "cta": cta}
+def _shot(name, hh):
+    ph = Image.open(os.path.join(HERE, "assets", name)).convert("RGBA")
+    return ph.resize((int(ph.width * hh / ph.height), hh), Image.LANCZOS)
+
+
+def phones(sp, idx, total, ft):
+    """Kicker + 2-line headline + 1 to 2 FULL phone screenshots (assets/shot_*.png), nothing bleeding off."""
+    im = canvas(); chrome(im, idx, total)
+    text(im, (M, 205), sp["kicker"].upper(), F(SEMI, 28), LAV, 5)
+    y = 318
+    for ln in sp["lines"][:2]:
+        text(im, (M, y), ln.upper(), fit(XB, ln.upper(), 108, W - 2 * M), WHITE); y += 96
+    top, hh = y - 36, sp.get("hh", 790)
+    shots = [_shot(n, hh) for n in sp["shots"]]
+    gap = 26
+    tot = sum(a.width for a in shots) + gap * (len(shots) - 1)
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(glow).ellipse((W / 2 - 420, top + hh * 0.35, W / 2 + 420, top + hh * 1.05), fill=PURPLE + (110,))
+    im = Image.alpha_composite(im, glow.filter(ImageFilter.GaussianBlur(130)))
+    x = (W - tot) // 2
+    for a in shots:
+        im.alpha_composite(a, (x, top)); x += a.width + gap
+    footer(im, ft); return im
+
+
+def cta_phone(sp, idx, total, ft):
+    """Closing slide: text + badge on the left, one full phone on the right."""
+    im = canvas(); chrome(im, idx, total)
+    colw = 440
+    y = 330
+    for ln in sp.get("lines", ["Download", "it today"]):
+        text(im, (M, y), ln.upper(), fit(XB, ln.upper(), 118, colw), WHITE); y += 104
+    grad_text(im, (M, y), sp.get("accent", "Free.").upper(), F(XB, 118)); y += 40
+    for ln in wrap(sp.get("sub", ""), F(MED, 32), colw):
+        text(im, (M, y + 36), ln, F(MED, 32), MUTE); y += 44
+    badge = Image.open(os.path.join(HERE, "assets", "badge_blk.png")).convert("RGBA")
+    bw = 320; bh = int(badge.height * bw / badge.width)
+    by = y + 80
+    im.alpha_composite(badge.resize((bw, bh), Image.LANCZOS), (M, by))
+    text(im, (M, by + bh + 56), "LINK IN BIO", F(SEMI, 36), WHITE, 5)
+    text(im, (M, by + bh + 104), "@VIRTUALBINDER.APP", F(SEMI, 26), LAV, 4)
+    hh = sp.get("hh", 840)
+    ph = _shot(sp["shot"], hh)
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(glow).ellipse((450, 500, 1150, 1300), fill=PURPLE + (110,))
+    im = Image.alpha_composite(im, glow.filter(ImageFilter.GaussianBlur(120)))
+    im.alpha_composite(ph, (W - 24 - ph.width, 380))
+    footer(im, ft); return im
+
+
+BUILDERS = {"phones": phones, "cta_phone": cta_phone, "feature": feature, "photo": photo, "hook": hook, "detail": detail, "point": point, "cta": cta}
 
 
 def build(spec, out):

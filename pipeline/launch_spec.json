@@ -1,0 +1,7 @@
+{"footer":"Virtual Binder · Free to download on the App Store for iPhone",
+ "slides":[
+ {"type":"phones","kicker":"Now on the App Store","lines":["Virtual Binder","is live"],"shots":["shot_scan.png","shot_shelf.png"]},
+ {"type":"phones","kicker":"Find · Track","lines":["Describe it.","Know its worth."],"shots":["shot_find.png","shot_worth.png"]},
+ {"type":"phones","kicker":"Depth · Covers","lines":["Bring it to life.","Make it yours."],"shots":["shot_tilt.png","shot_stickers.png"]},
+ {"type":"cta_phone","lines":["Download","it today"],"accent":"Free.","sub":"Free to download on the App Store for iPhone.","shot":"shot_layout.png"}
+ ]}
