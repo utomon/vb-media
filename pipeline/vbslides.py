@@ -258,10 +258,15 @@ def phones(sp, idx, total, ft):
     """Kicker + 2-line headline + 1 to 2 FULL phone screenshots (assets/shot_*.png), nothing bleeding off."""
     im = canvas(); chrome(im, idx, total)
     text(im, (M, 205), sp["kicker"].upper(), F(SEMI, 28), LAV, 5)
-    y = 318
+    y = 300
     for ln in sp["lines"][:2]:
-        text(im, (M, y), ln.upper(), fit(XB, ln.upper(), 108, W - 2 * M), WHITE); y += 96
+        text(im, (M, y), ln.upper(), fit(XB, ln.upper(), 100, W - 2 * M), WHITE); y += 92
     top, hh = y - 36, sp.get("hh", 790)
+    if sp.get("body"):
+        y += 4
+        for ln in wrap(sp["body"], F(MED, 32), W - 2 * M)[:2]:
+            text(im, (M, y), ln, F(MED, 32), (205, 205, 220)); y += 44
+        top = y - 8
     shots = [_shot(n, hh) for n in sp["shots"]]
     gap = 26
     tot = sum(a.width for a in shots) + gap * (len(shots) - 1)
@@ -271,7 +276,9 @@ def phones(sp, idx, total, ft):
     x = (W - tot) // 2
     for a in shots:
         im.alpha_composite(a, (x, top)); x += a.width + gap
-    footer(im, ft); return im
+    if not sp.get("nofooter"):
+        footer(im, ft)
+    return im
 
 
 def cta_phone(sp, idx, total, ft):
@@ -319,7 +326,34 @@ def cta_center(sp, idx, total, ft):
     footer(im, ft); return im
 
 
-BUILDERS = {"cta_center": cta_center, "phones": phones, "cta_phone": cta_phone, "feature": feature, "photo": photo, "hook": hook, "detail": detail, "point": point, "cta": cta}
+def cover(sp, idx, total, ft):
+    """Type-only cover with a big download call to action."""
+    im = canvas(); chrome(im, idx, total)
+    cx = W // 2
+    f = F(SEMI, 28); label = sp["kicker"].upper(); w = tw(f, label, 5) + 56
+    pill(im, (int(cx - w / 2), 215), label)
+    y = 470
+    for ln in sp["lines"][:2]:
+        fo = fit(XB, ln.upper(), 210, W - 2 * M)
+        text(im, (cx, y), ln.upper(), fo, WHITE, 0, "ms"); y += 165
+    text(im, (cx, y + 10), sp.get("sub", ""), F(MED, 40), (205, 205, 220), 0, "ms")
+    text(im, (cx, y + 62), sp.get("small", "").upper(), F(SEMI, 26), LAV, 5, "ms")
+    badge = Image.open(os.path.join(HERE, "assets", "badge_blk.png")).convert("RGBA")
+    bw = 560; bh = int(badge.height * bw / badge.width)
+    by = y + 120
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(glow).rounded_rectangle((cx - bw / 2 - 20, by - 10, cx + bw / 2 + 20, by + bh + 10), 40, fill=PURPLE + (170,))
+    im = Image.alpha_composite(im, glow.filter(ImageFilter.GaussianBlur(40)))
+    im.alpha_composite(badge.resize((bw, bh), Image.LANCZOS), (cx - bw // 2, by))
+    text(im, (cx, by + bh + 78), "DOWNLOAD NOW · LINK IN BIO", F(SEMI, 40), WHITE, 5, "ms")
+    sw = sp.get("swipe", "").upper(); f2 = F(SEMI, 28); x0 = cx - (tw(f2, sw, 5) + 60) / 2
+    text(im, (x0, 1262), sw, f2, LAV, 5)
+    d = ImageDraw.Draw(im); ax = x0 + tw(f2, sw, 5) + 18
+    d.line((ax, 1250, ax + 40, 1250), fill=LAV, width=4); d.line((ax + 22, 1237, ax + 40, 1250), fill=LAV, width=4); d.line((ax + 22, 1263, ax + 40, 1250), fill=LAV, width=4)
+    return im
+
+
+BUILDERS = {"cover": cover, "cta_center": cta_center, "phones": phones, "cta_phone": cta_phone, "feature": feature, "photo": photo, "hook": hook, "detail": detail, "point": point, "cta": cta}
 
 
 def build(spec, out):

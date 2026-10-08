@@ -1,11 +1,123 @@
-{"footer":"Virtual Binder · Free to download on the App Store for iPhone",
- "slides":[
- {"type":"phones","kicker":"Virtual Binder is live","lines":["A whole page.","One photo."],"shots":["shot_scan.png"],"hh":765},
- {"type":"phones","kicker":"Find","lines":["Forgot the name?","Describe it."],"shots":["shot_find.png"],"hh":765},
- {"type":"phones","kicker":"Value","lines":["Know what","it's worth."],"shots":["shot_worth.png"],"hh":765},
- {"type":"phones","kicker":"Depth","lines":["Bring a card","to life."],"shots":["shot_tilt.png"],"hh":765},
- {"type":"phones","kicker":"Binders","lines":["Every game,","one shelf."],"shots":["shot_shelf.png"],"hh":765},
- {"type":"phones","kicker":"Covers","lines":["Make it","yours."],"shots":["shot_stickers.png"],"hh":765},
- {"type":"phones","kicker":"Pages","lines":["Laid out like","the real thing."],"shots":["shot_layout.png"],"hh":765},
- {"type":"cta_center","lines":["Download","it today"],"accent":"Free.","sub":"Free to download on the App Store for iPhone."}
- ]}
+{
+ "footer": "Virtual Binder · Free to download on the App Store for iPhone",
+ "slides": [
+  {
+   "type": "cover",
+   "kicker": "Now on the App Store",
+   "lines": [
+    "Virtual Binder",
+    "is live!"
+   ],
+   "sub": "Scan, arrange, make it yours.",
+   "small": "Free to download · iPhone",
+   "swipe": "Swipe to see inside"
+  },
+  {
+   "type": "phones",
+   "kicker": "Scan",
+   "lines": [
+    "A whole page.",
+    "One photo."
+   ],
+   "body": "Photograph a binder page and every card on it fills in. Holos, alt arts and Japanese printings included.",
+   "shots": [
+    "shot_scan.png"
+   ],
+   "hh": 725,
+   "nofooter": true
+  },
+  {
+   "type": "phones",
+   "kicker": "Search",
+   "lines": [
+    "Forgot the name?",
+    "Describe it."
+   ],
+   "body": "Search by what a card looks like, or by set code, collector number or illustrator.",
+   "shots": [
+    "shot_find.png"
+   ],
+   "hh": 725,
+   "nofooter": true
+  },
+  {
+   "type": "phones",
+   "kicker": "Value",
+   "lines": [
+    "Know what",
+    "it's worth."
+   ],
+   "body": "Track what you paid and follow daily market prices, so you always know what your collection is worth.",
+   "shots": [
+    "shot_worth.png"
+   ],
+   "hh": 725,
+   "nofooter": true
+  },
+  {
+   "type": "phones",
+   "kicker": "Depth",
+   "lines": [
+    "Bring a card",
+    "to life."
+   ],
+   "body": "Turn your cards into live 3D versions that move as you tilt your phone.",
+   "shots": [
+    "shot_tilt.png"
+   ],
+   "hh": 725,
+   "nofooter": true
+  },
+  {
+   "type": "phones",
+   "kicker": "Binders",
+   "lines": [
+    "Every game,",
+    "one shelf."
+   ],
+   "body": "Pokémon, One Piece, Magic, Yu-Gi-Oh!, Digimon, Lorcana and more, each in its own binder.",
+   "shots": [
+    "shot_shelf.png"
+   ],
+   "hh": 725,
+   "nofooter": true
+  },
+  {
+   "type": "phones",
+   "kicker": "Covers",
+   "lines": [
+    "Make it",
+    "yours."
+   ],
+   "body": "Covers, stickers and your own photos. Place them, turn them, arrange them.",
+   "shots": [
+    "shot_stickers.png"
+   ],
+   "hh": 725,
+   "nofooter": true
+  },
+  {
+   "type": "phones",
+   "kicker": "Pages",
+   "lines": [
+    "Laid out like",
+    "the real thing."
+   ],
+   "body": "Cards and your own photos side by side, page by page.",
+   "shots": [
+    "shot_layout.png"
+   ],
+   "hh": 725,
+   "nofooter": true
+  },
+  {
+   "type": "cta_center",
+   "lines": [
+    "Download",
+    "it today"
+   ],
+   "accent": "Free.",
+   "sub": "Free to download on the App Store for iPhone."
+  }
+ ]
+}
