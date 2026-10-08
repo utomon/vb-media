@@ -1,7 +1,11 @@
 {"footer":"Virtual Binder · Free to download on the App Store for iPhone",
  "slides":[
- {"type":"phones","kicker":"Now on the App Store","lines":["Virtual Binder","is live"],"shots":["shot_scan.png","shot_shelf.png"]},
- {"type":"phones","kicker":"Find · Track","lines":["Describe it.","Know its worth."],"shots":["shot_find.png","shot_worth.png"]},
- {"type":"phones","kicker":"Depth · Covers","lines":["Bring it to life.","Make it yours."],"shots":["shot_tilt.png","shot_stickers.png"]},
- {"type":"cta_phone","lines":["Download","it today"],"accent":"Free.","sub":"Free to download on the App Store for iPhone.","shot":"shot_layout.png"}
+ {"type":"phones","kicker":"Virtual Binder is live","lines":["A whole page.","One photo."],"shots":["shot_scan.png"],"hh":765},
+ {"type":"phones","kicker":"Find","lines":["Forgot the name?","Describe it."],"shots":["shot_find.png"],"hh":765},
+ {"type":"phones","kicker":"Value","lines":["Know what","it's worth."],"shots":["shot_worth.png"],"hh":765},
+ {"type":"phones","kicker":"Depth","lines":["Bring a card","to life."],"shots":["shot_tilt.png"],"hh":765},
+ {"type":"phones","kicker":"Binders","lines":["Every game,","one shelf."],"shots":["shot_shelf.png"],"hh":765},
+ {"type":"phones","kicker":"Covers","lines":["Make it","yours."],"shots":["shot_stickers.png"],"hh":765},
+ {"type":"phones","kicker":"Pages","lines":["Laid out like","the real thing."],"shots":["shot_layout.png"],"hh":765},
+ {"type":"cta_center","lines":["Download","it today"],"accent":"Free.","sub":"Free to download on the App Store for iPhone."}
  ]}

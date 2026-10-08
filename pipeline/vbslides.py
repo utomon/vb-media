@@ -299,7 +299,27 @@ def cta_phone(sp, idx, total, ft):
     footer(im, ft); return im
 
 
-BUILDERS = {"phones": phones, "cta_phone": cta_phone, "feature": feature, "photo": photo, "hook": hook, "detail": detail, "point": point, "cta": cta}
+def cta_center(sp, idx, total, ft):
+    """Closing slide, no phone: centred headline, big badge, link in bio."""
+    im = canvas(); chrome(im, idx, total)
+    cx = W // 2
+    y = 410
+    for ln in sp.get("lines", ["Download", "it today"]):
+        text(im, (cx, y), ln.upper(), F(XB, 170), WHITE, 0, "ms"); y += 150
+    f = F(XB, 170); s = sp.get("accent", "Free.").upper()
+    grad_text(im, (cx - tw(f, s) / 2, y), s, f)
+    for i, ln in enumerate(wrap(sp.get("sub", ""), F(MED, 38), 800)):
+        text(im, (cx, y + 70 + 52 * i), ln, F(MED, 38), MUTE, 0, "ms")
+    badge = Image.open(os.path.join(HERE, "assets", "badge_blk.png")).convert("RGBA")
+    bw = 460; bh = int(badge.height * bw / badge.width)
+    by = y + 190
+    im.alpha_composite(badge.resize((bw, bh), Image.LANCZOS), (cx - bw // 2, by))
+    text(im, (cx, by + bh + 80), "LINK IN BIO", F(SEMI, 46), WHITE, 6, "ms")
+    text(im, (cx, by + bh + 135), "@VIRTUALBINDER.APP", F(SEMI, 30), LAV, 5, "ms")
+    footer(im, ft); return im
+
+
+BUILDERS = {"cta_center": cta_center, "phones": phones, "cta_phone": cta_phone, "feature": feature, "photo": photo, "hook": hook, "detail": detail, "point": point, "cta": cta}
 
 
 def build(spec, out):
