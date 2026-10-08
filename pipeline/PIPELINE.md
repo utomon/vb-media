@@ -1,6 +1,6 @@
 # Virtual Binder daily post, runbook
 
-Two phases. Never publish anything: Metricool `autoPublish` stays false, so David gets a phone notification at post time and taps to publish.
+Two phases. Posts are created with Metricool `autoPublish: true` so they publish BY THEMSELVES at the scheduled time. David reviews slides and caption in chat before the post is created; do not use manual/notification publishing (David does not want that).
 
 - **Phase 1 (scheduled, unattended, ~07:52 Jakarta):** research today's story, write a brief into the repo, push, and finish with a short message that works as the push notification. Do NOT build slides or touch Metricool.
 - **Phase 2 (interactive, when David writes "run today's post" and attaches an image, or says "no image"):** read the brief, build the slides, upload, create the Metricool draft.
@@ -33,7 +33,7 @@ Check Metricool `getScheduledPosts` for the last 7 days and the repo `briefs/` f
 2. Put David's attached image in `photo` slide(s) (`image` path, `credit` = publisher). If David says "no image", build text-led slides instead.
 3. Build: `python3 -I pipeline/vbslides.py spec.json out/`. Open EVERY slide image and check text fit, overlaps, cropping and numbers against the brief. Fix and rebuild until clean.
 4. Upload the JPEGs to `p/<random16hex>/slide_N.jpg` in the repo, commit, push. Confirm each raw.githubusercontent.com URL returns 200 image/jpeg.
-5. `createScheduledPost` for brand 7192540: `autoPublish: false`, `draft: true`, instagram + tiktok, `instagramData.type = POST`, `tiktokData.title` (under 90 chars), 10:00 Jakarta, media = raw URLs in order. Confirm with `getScheduledPosts` that the post exists and its media URLs are Metricool-hosted (static.metricool.com). Then `git rm` the `p/<id>/` folder, commit, push.
+5. `createScheduledPost` for brand 7192540: `autoPublish: true`, `instagramData.autoPublish: true`, `draft: false`, instagram + tiktok, `instagramData.type = POST`, `tiktokData.title` (under 90 chars), 10:00 Jakarta, media = raw URLs in order. Confirm with `getScheduledPosts` that the post exists and its media URLs are Metricool-hosted (static.metricool.com). Then `git rm` the `p/<id>/` folder, commit, push.
 6. Report: slides preview, caption, planner link, anything to double check.
 
 ## Housekeeping
@@ -47,7 +47,7 @@ Line 1: hook with emoji (e.g. "Magic: The Gathering | Star Trek release dates ðŸ
 - Facts only from sources verified in this run. Say "reported" for unconfirmed items. No prices, dates or card details from memory.
 - Images: only ones David supplies or official publisher images he downloads; credit the publisher on the slide. Do not use individual card art from third-party sites.
 - No lyrics, long quotes or article text. Paraphrase.
-- Never publish, never enable autoPublish, never post to X or Facebook.
+- Phase 1 (scheduled run) never creates or publishes a post. In phase 2, create the post only after David's go-ahead in chat, with autoPublish true. Never post to X or Facebook.
 - Never put credentials in files or messages. Repo access comes from add_repo.
 
 ## Fallback post (no verified news, or Sunday)
