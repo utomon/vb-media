@@ -226,7 +226,30 @@ def photo(sp, idx, total, ft):
     footer(im, ft); return im
 
 
-BUILDERS = {"photo": photo, "hook": hook, "detail": detail, "point": point, "cta": cta}
+def feature(sp, idx, total, ft):
+    """Headline + short body + phone mockup bleeding off the bottom. sp: kicker, lines, body, phone (asset name), rot."""
+    im = canvas(); chrome(im, idx, total)
+    pill(im, (M, 190), sp["kicker"].upper())
+    y = 405
+    for ln in sp["lines"][:2]:
+        text(im, (M, y), ln.upper(), F(XB, 118), WHITE); y += 108
+    by = y + 14
+    for ln in wrap(sp.get("body", ""), F(MED, 36), W - 2 * M)[:3]:
+        text(im, (M, by), ln, F(MED, 36), (205, 205, 220)); by += 50
+    ph = Image.open(os.path.join(HERE, "assets", sp["phone"])).convert("RGBA")
+    pw = sp.get("pw", 640)
+    ph = ph.resize((pw, int(ph.height * pw / ph.width)), Image.LANCZOS)
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(glow).ellipse((W / 2 - 380, by + 60, W / 2 + 380, by + 900), fill=PURPLE + (120,))
+    im = Image.alpha_composite(im, glow.filter(ImageFilter.GaussianBlur(120)))
+    rot = sp.get("rot", 0)
+    if rot:
+        ph = ph.rotate(rot, expand=True, resample=Image.BICUBIC)
+    im.alpha_composite(ph, ((W - ph.width) // 2, by + 50))
+    return im
+
+
+BUILDERS = {"feature": feature, "photo": photo, "hook": hook, "detail": detail, "point": point, "cta": cta}
 
 
 def build(spec, out):
