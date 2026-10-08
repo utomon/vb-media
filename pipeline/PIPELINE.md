@@ -36,6 +36,10 @@ Check Metricool `getScheduledPosts` for the last 7 days and the repo `briefs/` f
 5. `createScheduledPost` for brand 7192540: `autoPublish: true`, `instagramData.autoPublish: true`, `draft: false`, instagram + tiktok, `instagramData.type = POST`, `tiktokData.title` (under 90 chars), 10:00 Jakarta, media = raw URLs in order. Confirm with `getScheduledPosts` that the post exists and its media URLs are Metricool-hosted (static.metricool.com). Then `git rm` the `p/<id>/` folder, commit, push.
 6. Report: slides preview, caption, planner link, anything to double check.
 
+## TikTok rules (learned the hard way)
+- TikTok rejects PNG: slides MUST be JPEG (the builder outputs .jpg; never upload .png). After creating a post, `getScheduledPosts` and confirm each media URL ends in .jpeg/.jpg before leaving it.
+- After the scheduled time, check `getScheduledPosts` provider statuses: Instagram and TikTok must both be PUBLISHED. If one shows ERROR, fix and re-post that network only (a new post with just that provider, so the other is not duplicated).
+
 ## Housekeeping
 - Uploaded slide folders are deleted right after Metricool copies them. Briefs older than 14 days are deleted. David's own images are never committed.
 - Git history keeps old files (about 1 MB per post as JPEG). If the repo ever nears a few hundred MB, squash history.
