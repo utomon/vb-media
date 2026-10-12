@@ -226,6 +226,41 @@ def photo(sp, idx, total, ft):
     footer(im, ft); return im
 
 
+def cardstat(sp, idx, total, ft):
+    """Headline + full card photo (left, uncropped) + big stat and notes (right). sp: kicker, lines, image, credit, code, stat, body."""
+    im = canvas(); chrome(im, idx, total)
+    pill(im, (M, 190), sp["kicker"].upper())
+    y = 360
+    for ln in sp["lines"][:2]:
+        text(im, (M, y), ln.upper(), F(XB, 100), WHITE); y += 96
+    top, ch = y + 10, 630
+    src = Image.open(os.path.abspath(sp["image"])).convert("RGBA")
+    cw = int(src.width * ch / src.height)
+    src = src.resize((cw, ch), Image.LANCZOS)
+    sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rounded_rectangle((M + 6, top + 14, M + cw + 6, top + ch + 14), 22, fill=(0, 0, 0, 170))
+    im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(18)))
+    mask = Image.new("L", (cw, ch), 0)
+    ImageDraw.Draw(mask).rounded_rectangle((0, 0, cw - 1, ch - 1), 18, fill=255)
+    im.paste(src, (M, top), mask)
+    x = M + cw + 44; maxw = W - M - x
+    lab, val, tone = sp["stat"]
+    col = GREEN if tone == "up" else RED if tone == "down" else LAV
+    vf = fit(XB, val.upper(), 190, maxw)
+    grad_text(im, (x, top + 170), val.upper(), vf, (190, 170, 255) if col == LAV else col, col)
+    ly = top + 215
+    for ln in wrap(lab.upper(), F(SEMI, 24), maxw):
+        text(im, (x, ly), ln, F(SEMI, 24), MUTE, 4); ly += 34
+    ly += 22
+    for ln in wrap(sp.get("body", ""), F(MED, 32), maxw):
+        text(im, (x, ly), ln, F(MED, 32), (205, 205, 220)); ly += 44
+    cy = top + ch + 40
+    text(im, (M, cy), sp.get("code", ""), F(SEMI, 26), LAV, 3)
+    if sp.get("credit"):
+        text(im, (W - M, cy), "Image: " + sp["credit"], F(MED, 22), (110, 110, 130), 0, "rs")
+    footer(im, ft); return im
+
+
 def feature(sp, idx, total, ft):
     """Headline + short body + phone mockup bleeding off the bottom. sp: kicker, lines, body, phone (asset name), rot."""
     im = canvas(); chrome(im, idx, total)
@@ -353,7 +388,7 @@ def cover(sp, idx, total, ft):
     return im
 
 
-BUILDERS = {"cover": cover, "cta_center": cta_center, "phones": phones, "cta_phone": cta_phone, "feature": feature, "photo": photo, "hook": hook, "detail": detail, "point": point, "cta": cta}
+BUILDERS = {"cover": cover, "cta_center": cta_center, "phones": phones, "cta_phone": cta_phone, "feature": feature, "photo": photo, "cardstat": cardstat, "hook": hook, "detail": detail, "point": point, "cta": cta}
 
 
 def build(spec, out):
