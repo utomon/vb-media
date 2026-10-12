@@ -261,6 +261,35 @@ def cardstat(sp, idx, total, ft):
     footer(im, ft); return im
 
 
+def bars(sp, idx, total, ft):
+    """Horizontal bar chart. sp: kicker, lines, rows [[name, pct, window, now_text]], note."""
+    im = canvas(); chrome(im, idx, total)
+    pill(im, (M, 190), sp["kicker"].upper())
+    y = 360
+    for ln in sp["lines"][:2]:
+        text(im, (M, y), ln.upper(), F(XB, 100), WHITE); y += 96
+    d = ImageDraw.Draw(im)
+    rows = sp["rows"]; mx = max(r[1] for r in rows)
+    top = y + 40; bw = W - 2 * M; rowh = 205
+    for i, (name, pct, win, now) in enumerate(rows):
+        ry = top + i * rowh
+        text(im, (M, ry), name.upper(), F(XB, 54), WHITE)
+        text(im, (W - M, ry), win.upper(), F(SEMI, 24), MUTE, 4, "rs")
+        by = ry + 24; bh = 74
+        d.rounded_rectangle((M, by, M + bw, by + bh), 16, fill=(24, 22, 40))
+        fw = max(int(bw * pct / mx), 120)
+        bar = Image.new("RGBA", (fw, bh), (0, 0, 0, 0)); bd = ImageDraw.Draw(bar)
+        for x in range(fw):
+            t = x / max(fw - 1, 1)
+            bd.line((x, 0, x, bh), fill=(int(40 + 21 * t), int(150 + 70 * t), int(100 + 32 * t), 255))
+        m = Image.new("L", (fw, bh), 0); ImageDraw.Draw(m).rounded_rectangle((0, 0, fw - 1, bh - 1), 16, fill=255)
+        im.paste(bar, (M, by), m)
+        text(im, (M + 24, by + bh / 2 + 2), "+%d%%" % pct, F(XB, 56), (8, 30, 18), 0, "lm")
+        text(im, (M, by + bh + 38), now, F(MED, 28), (205, 205, 220))
+    text(im, (M, top + len(rows) * rowh + 6), sp.get("note", ""), F(MED, 24), (150, 150, 170))
+    footer(im, ft); return im
+
+
 def feature(sp, idx, total, ft):
     """Headline + short body + phone mockup bleeding off the bottom. sp: kicker, lines, body, phone (asset name), rot."""
     im = canvas(); chrome(im, idx, total)
@@ -388,7 +417,7 @@ def cover(sp, idx, total, ft):
     return im
 
 
-BUILDERS = {"cover": cover, "cta_center": cta_center, "phones": phones, "cta_phone": cta_phone, "feature": feature, "photo": photo, "cardstat": cardstat, "hook": hook, "detail": detail, "point": point, "cta": cta}
+BUILDERS = {"cover": cover, "cta_center": cta_center, "phones": phones, "cta_phone": cta_phone, "feature": feature, "photo": photo, "cardstat": cardstat, "bars": bars, "hook": hook, "detail": detail, "point": point, "cta": cta}
 
 
 def build(spec, out):
