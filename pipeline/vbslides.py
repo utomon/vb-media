@@ -417,7 +417,46 @@ def cover(sp, idx, total, ft):
     return im
 
 
-BUILDERS = {"cover": cover, "cta_center": cta_center, "phones": phones, "cta_phone": cta_phone, "feature": feature, "photo": photo, "cardstat": cardstat, "bars": bars, "hook": hook, "detail": detail, "point": point, "cta": cta}
+def photocover(sp, idx, total, ft):
+    """Clickbait cover: full-bleed topic image fading into the dark theme, huge headline. sp: image, lines (white), accent (gradient line), kicker (pill), swipe, focus (0-1 horizontal crop centre)."""
+    im = canvas()
+    ih = sp.get("img_h", 930)
+    src = Image.open(os.path.abspath(sp["image"])).convert("RGBA")
+    sc = max(W / src.width, ih / src.height) * sp.get("zoom", 1.0)
+    src = src.resize((int(src.width * sc) + 1, int(src.height * sc) + 1), Image.LANCZOS)
+    ox = int((src.width - W) * sp.get("focus", 0.5)); oy = int((src.height - ih) * sp.get("vfocus", 0.4))
+    src = src.crop((ox, oy, ox + W, oy + ih))
+    fade = Image.new("L", (W, ih), 255)
+    fd = ImageDraw.Draw(fade)
+    f0 = ih - 330
+    for y in range(f0, ih):
+        fd.line((0, y, W, y), fill=int(255 * (1 - ((y - f0) / 330)) ** 1.4))
+    im.paste(src, (0, 0), fade)
+    dark = Image.new("RGBA", (W, 200), (0, 0, 0, 0)); dd = ImageDraw.Draw(dark)
+    for y in range(200):
+        dd.line((0, y, W, y), fill=(10, 10, 16, int(150 * (1 - y / 200))))
+    im.alpha_composite(dark, (0, 0))
+    logo = Image.open(os.path.join(HERE, "assets", "logo.png")).convert("RGBA")
+    logo.thumbnail((200, 80)); im.alpha_composite(logo, (M, 62))
+    if sp.get("kicker"):
+        pill(im, (M, 190), sp["kicker"].upper())
+    y = ih - 40
+    for ln in sp["lines"][:2]:
+        fo = fit(XB, ln.upper(), 150, W - 2 * M)
+        text(im, (M, y + 140), ln.upper(), fo, WHITE); y += 130
+    acc = sp["accent"].upper()
+    fa = fit(XB, acc, 215, W - 2 * M)
+    grad_text(im, (M, y + 172), acc, fa)
+    if sp.get("swipe"):
+        text(im, (M, 1290), sp["swipe"].upper(), F(SEMI, 28), LAV, 4)
+        d = ImageDraw.Draw(im)
+        d.line((W - M - 64, 1280, W - M, 1280), fill=LAV, width=4)
+        d.line((W - M - 22, 1264, W - M, 1280), fill=LAV, width=4)
+        d.line((W - M - 22, 1296, W - M, 1280), fill=LAV, width=4)
+    return im
+
+
+BUILDERS = {"photocover": photocover, "cover": cover, "cta_center": cta_center, "phones": phones, "cta_phone": cta_phone, "feature": feature, "photo": photo, "cardstat": cardstat, "bars": bars, "hook": hook, "detail": detail, "point": point, "cta": cta}
 
 
 def build(spec, out):
