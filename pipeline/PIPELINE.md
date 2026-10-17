@@ -6,7 +6,7 @@ Two phases. Posts are created with Metricool `autoPublish: true` so they publish
 - **Phase 2 (interactive, when David writes "run today's post" and attaches an image, or says "no image"):** read the brief, build the slides, upload, create the Metricool draft.
 
 ## Accounts and constants
-- Metricool brand ID: 7192540, timezone Asia/Jakarta. Networks: instagram (type POST) + tiktok. X and Facebook are not connected.
+- Metricool brand ID: 7192540, timezone Asia/Jakarta. Networks: instagram (type POST) + tiktok + facebook (type POST, connected Oct 17 2026, page id 1406233782568524). X is not connected.
 - Post time: 10:00 Asia/Jakarta (if already past 09:45 when creating the draft, use tomorrow 10:00 and say so).
 - App Store: https://apps.apple.com/app/id6798784324 (bios carry the link; captions say "link in bio").
 - Slides 1080x1350, JPEG output. Builder: `pipeline/vbslides.py`, see spec format at the bottom.
@@ -33,12 +33,12 @@ Check Metricool `getScheduledPosts` for the last 7 days and the repo `briefs/` f
 2. Put David's attached image in `photo` slide(s) (`image` path, `credit` = publisher). If David says "no image", build text-led slides instead.
 3. Build: `python3 -I pipeline/vbslides.py spec.json out/`. Open EVERY slide image and check text fit, overlaps, cropping and numbers against the brief. Fix and rebuild until clean.
 4. Upload the JPEGs to `p/<random16hex>/slide_N.jpg` in the repo, commit, push. Confirm each raw.githubusercontent.com URL returns 200 image/jpeg.
-5. `createScheduledPost` for brand 7192540: `autoPublish: true`, `instagramData.autoPublish: true`, `draft: false`, instagram + tiktok, `instagramData.type = POST`, `tiktokData.title` (under 90 chars), 10:00 Jakarta, media = raw URLs in order. Confirm with `getScheduledPosts` that the post exists and its media URLs are Metricool-hosted (static.metricool.com). Then `git rm` the `p/<id>/` folder, commit, push.
+5. `createScheduledPost` for brand 7192540: `autoPublish: true`, `instagramData.autoPublish: true`, `draft: false`, instagram + tiktok + facebook, `instagramData.type = POST`, `facebookData.type = POST`, `tiktokData.title` (under 90 chars), 10:00 Jakarta, media = raw URLs in order. Confirm with `getScheduledPosts` that the post exists and its media URLs are Metricool-hosted (static.metricool.com). Then `git rm` the `p/<id>/` folder, commit, push.
 6. Report: slides preview, caption, planner link, anything to double check.
 
 ## TikTok rules (learned the hard way)
 - TikTok rejects PNG: slides MUST be JPEG (the builder outputs .jpg; never upload .png). After creating a post, `getScheduledPosts` and confirm each media URL ends in .jpeg/.jpg before leaving it.
-- After the scheduled time, check `getScheduledPosts` provider statuses: Instagram and TikTok must both be PUBLISHED. If one shows ERROR, fix and re-post that network only (a new post with just that provider, so the other is not duplicated).
+- After the scheduled time, check `getScheduledPosts` provider statuses: Instagram, TikTok and Facebook must all be PUBLISHED. If one shows ERROR, fix and re-post that network only (a new post with just that provider, so the other is not duplicated).
 
 ## Housekeeping
 - Uploaded slide folders are deleted right after Metricool copies them. Briefs older than 14 days are deleted. David's own images are never committed.
@@ -51,7 +51,7 @@ Line 1: hook with emoji (e.g. "Magic: The Gathering | Star Trek release dates ðŸ
 - Facts only from sources verified in this run. Say "reported" for unconfirmed items. No prices, dates or card details from memory.
 - Images: only ones David supplies or official publisher images he downloads; credit the publisher on the slide. Do not use individual card art from third-party sites.
 - No lyrics, long quotes or article text. Paraphrase.
-- Phase 1 (scheduled run) never creates or publishes a post. In phase 2, create the post only after David's go-ahead in chat, with autoPublish true. Never post to X or Facebook.
+- Phase 1 (scheduled run) never creates or publishes a post. In phase 2, create the post only after David's go-ahead in chat, with autoPublish true. Never post to X.
 - Never put credentials in files or messages. Repo access comes from add_repo.
 
 ## Fallback post (no verified news, or Sunday)
