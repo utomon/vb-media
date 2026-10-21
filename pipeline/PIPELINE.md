@@ -22,7 +22,7 @@ Check Metricool `getScheduledPosts` for the last 7 days and the repo `briefs/` f
 4. Write `briefs/YYYY-MM-DD.md` (Jakarta date) containing:
    - game, one-line story, the verified facts, and every source with URL;
    - what is uncertain or labeled "reported";
-   - the proposed `spec.json` (slide text, 4 to 6 slides, with a `photo` slide where an image would help, image path left as `IMAGE`) in a json code block;
+   - the proposed `spec.json` (4 to 6 slides) in a json code block. **Slide 1 is ALWAYS a clickbait `photocover`** (the official image full-bleed, image path left as `IMAGE`, big punchy headline: ONE white line + ONE gradient `accent` line, e.g. "Heroines Edition" / "Vol.2 · Oct 30"; max about 14 characters per line is safe). Do NOT open with a `hook` slide and do NOT use a separate `photo` slide for the same image. With "no image", fall back to a `hook` slide. Headlines must create curiosity or urgency (reveals live, banned, drops Oct 30) while staying factual;
    - the proposed Metricool caption and TikTok title;
    - **Image to download:** the direct URL of the official page/press image that fits (publisher domain only), which slide it goes on, and the credit line.
 5. Delete files in `briefs/` older than 14 days (`git rm`). Commit and push. Never put credentials in files or messages.
@@ -30,7 +30,7 @@ Check Metricool `getScheduledPosts` for the last 7 days and the repo `briefs/` f
 
 ## Phase 2: build and draft (interactive)
 1. Make sure the repo is attached (add_repo, push) and pulled; read today's `briefs/YYYY-MM-DD.md` (or the latest). Re-verify any fact that looks time-sensitive.
-2. Put David's attached image in `photo` slide(s) (`image` path, `credit` = publisher). If David says "no image", build text-led slides instead.
+2. David's attached image goes on slide 1 as the `photocover` (see the spec format; use `focus`/`vfocus`/`zoom` so faces or the product are not cropped). Credit the publisher in the caption ("Source and image: <publisher>"). Never use a plain `hook` opener when an image exists. If David says "no image", use a `hook` opener and text-led slides. If an image is small (under ~1000px wide) it is fine on the cover, but check it is not too soft.
 3. Build: `python3 -I pipeline/vbslides.py spec.json out/`. Open EVERY slide image and check text fit, overlaps, cropping and numbers against the brief. Fix and rebuild until clean.
 4. Upload the JPEGs to `p/<random16hex>/slide_N.jpg` in the repo, commit, push. Confirm each raw.githubusercontent.com URL returns 200 image/jpeg.
 5. `createScheduledPost` for brand 7192540: `autoPublish: true`, `instagramData.autoPublish: true`, `draft: false`, instagram + tiktok + facebook, `instagramData.type = POST`, `facebookData.type = POST`, `tiktokData.title` (under 90 chars), 10:00 Jakarta, media = raw URLs in order. Confirm with `getScheduledPosts` that the post exists and its media URLs are Metricool-hosted (static.metricool.com). Then `git rm` the `p/<id>/` folder, commit, push.
@@ -61,6 +61,7 @@ App-feature post: slide 1 hook on one feature (page scan, depth-effect cards, st
 ```
 {"footer": "Source line shown at the bottom of each slide",
  "slides": [
+  {"type":"photocover","kicker":"Magic · Star Trek","lines":["One white line"],"accent":"Gradient line","image":"/path/to/davids_image.png","swipe":"Swipe for details","focus":0.5,"vfocus":0.3},
   {"type":"hook","kicker":"One Piece · Release","lines":["Line one","Line two"],"big":"Big word","chips":[["Date","Label"],["Date","Label"]],"swipe":"Swipe for details"},
   {"type":"photo","kicker":"Magic · Reveal","lines":["Two","lines"],"image":"/path/to/davids_image.png","credit":"Wizards of the Coast","body":"One or two short lines"},
   {"type":"detail","kicker":"Coming Oct 23","big":"Oct 23","title":"Product name","rows":[["Label","Value"], ...up to 5]},
@@ -68,4 +69,4 @@ App-feature post: slide 1 hook on one feature (page scan, depth-effect cards, st
   {"type":"cta"}
  ]}
 ```
-Limits: hook `lines` max 2, `chips` 2 to 3; photo `lines` max 2, `body` 2 short lines; detail `title` max 2 lines, `rows` max 5.
+Limits: photocover `lines` max 2 but use 1 when `accent` is long (2 lines + accent overlaps the swipe text; always open the rendered slide), `accent` about 14 characters max, hook `lines` max 2, `chips` 2 to 3; photo `lines` max 2, `body` 2 short lines; detail `title` max 2 lines, `rows` max 5.
