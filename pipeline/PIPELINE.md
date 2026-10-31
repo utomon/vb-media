@@ -7,7 +7,7 @@ Two phases. Posts are created with Metricool `autoPublish: true` so they publish
 
 ## Accounts and constants
 - Metricool brand ID: 7192540, timezone Asia/Jakarta. Networks: instagram (type POST) + tiktok + facebook (type POST, connected Oct 17 2026, page id 1406233782568524). X is not connected.
-- Post time: 10:00 Asia/Jakarta. If the 10:00 slot is missed (already past 09:45 when creating the post, or an existing post missed 10:00), do NOT move it to the next day: schedule it for a new time the SAME DAY, about 30 minutes from now rounded to the next :00 or :30 (e.g. 15:30), and say the new time. Only if the day is nearly over (after 22:00) ask David.
+- Post time: 10:00 Asia/Jakarta. If the 10:00 slot is missed (already past 09:45 when creating the post, or an existing post missed 10:00), do NOT move it to the next day: schedule it for 19:00 Asia/Jakarta the SAME DAY and say the new time. Only if it is already past 18:30 ask David.
 - App Store: https://apps.apple.com/app/id6798784324 (bios carry the link; captions say "link in bio").
 - Slides 1080x1350, JPEG output. Builder: `pipeline/vbslides.py`, see spec format at the bottom.
 
