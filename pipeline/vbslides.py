@@ -216,8 +216,10 @@ def photo(sp, idx, total, ft):
     src = src.crop((ox, oy, ox + fw, oy + fh))
     mask = Image.new("L", (fw, fh), 0)
     ImageDraw.Draw(mask).rounded_rectangle((0, 0, fw - 1, fh - 1), 28, fill=255)
+    if sp.get("noborder"): mask = src.split()[3]  # cutout: use the image's own alpha
     im.paste(src, (M, top), mask)
-    ImageDraw.Draw(im).rounded_rectangle((M, top, M + fw - 1, top + fh - 1), 28, outline=(106, 80, 220), width=3)
+    if not sp.get("noborder"):
+        ImageDraw.Draw(im).rounded_rectangle((M, top, M + fw - 1, top + fh - 1), 28, outline=(106, 80, 220), width=3)
     if sp.get("credit"):
         text(im, (M, top + fh + 36), "Image: " + sp["credit"], F(MED, 22), (110, 110, 130))
     by = top + fh + 92
