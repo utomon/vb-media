@@ -458,7 +458,86 @@ def photocover(sp, idx, total, ft):
     return im
 
 
-BUILDERS = {"photocover": photocover, "cover": cover, "cta_center": cta_center, "phones": phones, "cta_phone": cta_phone, "feature": feature, "photo": photo, "cardstat": cardstat, "bars": bars, "hook": hook, "detail": detail, "point": point, "cta": cta}
+def _cardbox(im, x, y, cw, ch, image, label=""):
+    """Paste a card image (uncropped, rounded, shadowed) at x,y sized cw x ch. image 'PLACEHOLDER' (or missing file) draws a dry-run frame."""
+    sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rounded_rectangle((x + 6, y + 14, x + cw + 6, y + ch + 14), 22, fill=(0, 0, 0, 170))
+    im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(18)))
+    if image and image != "PLACEHOLDER" and os.path.exists(image):
+        src = Image.open(os.path.abspath(image)).convert("RGBA")
+        sc = max(cw / src.width, ch / src.height)
+        src = src.resize((int(src.width * sc) + 1, int(src.height * sc) + 1), Image.LANCZOS)
+        ox, oy = (src.width - cw) // 2, (src.height - ch) // 2
+        src = src.crop((ox, oy, ox + cw, oy + ch))
+    else:
+        src = Image.new("RGBA", (cw, ch), (28, 24, 60, 255))
+        gd = ImageDraw.Draw(src)
+        for yy in range(ch):
+            t = yy / ch
+            gd.line((0, yy, cw, yy), fill=(int(40 + 50 * t), int(30 + 10 * t), int(110 + 90 * (1 - t)), 255))
+        text(src, (cw // 2, ch // 2), "CARD IMAGE", F(SEMI, 30), (210, 200, 255), 4, "mm")
+    mask = Image.new("L", (cw, ch), 0)
+    ImageDraw.Draw(mask).rounded_rectangle((0, 0, cw - 1, ch - 1), 18, fill=255)
+    im.paste(src, (x, y), mask)
+    ImageDraw.Draw(im).rounded_rectangle((x, y, x + cw - 1, y + ch - 1), 18, outline=(106, 80, 220), width=3)
+
+
+def pair(sp, idx, total, ft):
+    """Two cards side by side ("better together", "debut vs now"). sp: kicker, lines (max 2), images [a, b], labels [a, b] (small caps under each card), names [a, b] (optional), body (1-2 short lines), credit."""
+    im = canvas(); chrome(im, idx, total)
+    pill(im, (M, 190), sp["kicker"].upper())
+    y = 350
+    for ln in sp["lines"][:2]:
+        text(im, (M, y), ln.upper(), F(XB, 84), WHITE); y += 84
+    ch = 520
+    cw = int(ch / 1.395)
+    gap = 44
+    x0 = (W - (2 * cw + gap)) // 2
+    top = y + 10
+    for i in range(2):
+        x = x0 + i * (cw + gap)
+        _cardbox(im, x, top, cw, ch, sp["images"][i] if sp.get("images") else None)
+        lab = (sp.get("labels") or ["", ""])[i]
+        if lab:
+            text(im, (x + cw // 2, top + ch + 44), lab.upper(), F(SEMI, 24), LAV, 4, "ms")
+        nm = (sp.get("names") or ["", ""])[i]
+        if nm:
+            text(im, (x + cw // 2, top + ch + 86), nm, fit(MED, nm, 30, cw), (205, 205, 220), 0, "ms")
+    by = top + ch + 146
+    for ln in wrap(sp.get("body", ""), F(MED, 34), W - 2 * M)[:2]:
+        text(im, (M, by), ln, F(MED, 34), (205, 205, 220)); by += 46
+    if sp.get("credit"):
+        text(im, (W - M, H - 62), "Image: " + sp["credit"], F(MED, 22), (110, 110, 130), 0, "rs")
+    footer(im, ft); return im
+
+
+def ranking(sp, idx, total, ft):
+    """Ranked list with a big value per row. sp: kicker, lines (max 2), rows [[name, sub, value], ...] (max 5), note (source and date line, REQUIRED for prices)."""
+    im = canvas(); chrome(im, idx, total)
+    pill(im, (M, 190), sp["kicker"].upper())
+    y = 360
+    for ln in sp["lines"][:2]:
+        text(im, (M, y), ln.upper(), F(XB, 100), WHITE); y += 96
+    ry = y + 40
+    rows = sp["rows"][:5]
+    rh = min(150, (H - 170 - ry) // max(len(rows), 1))
+    d = ImageDraw.Draw(im)
+    for n, (name, sub, val) in enumerate(rows, 1):
+        top = ry + (n - 1) * rh
+        d.rounded_rectangle((M, top, W - M, top + rh - 16), 22, fill=(22, 18, 48), outline=(70, 55, 150), width=2)
+        text(im, (M + 36, top + (rh - 16) // 2), f"#{n}", F(XB, 72), LAV, 0, "lm")
+        vf = F(XB, 64); vw = tw(vf, val)
+        text(im, (W - M - 36, top + (rh - 16) // 2), val.upper(), vf, WHITE, 0, "rm")
+        nf = fit(SEMI, name, 38, W - 2 * M - 150 - vw - 60)
+        text(im, (M + 150, top + (rh - 16) // 2 - (14 if sub else 0)), name, nf, WHITE, 0, "lm")
+        if sub:
+            text(im, (M + 150, top + (rh - 16) // 2 + 28), sub, F(MED, 26), MUTE, 0, "lm")
+    if sp.get("note"):
+        text(im, (M, H - 108), sp["note"], F(MED, 24), (150, 150, 170))
+    footer(im, ft); return im
+
+
+BUILDERS = {"pair": pair, "ranking": ranking, "photocover": photocover, "cover": cover, "cta_center": cta_center, "phones": phones, "cta_phone": cta_phone, "feature": feature, "photo": photo, "cardstat": cardstat, "bars": bars, "hook": hook, "detail": detail, "point": point, "cta": cta}
 
 
 def build(spec, out):

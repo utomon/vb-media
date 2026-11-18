@@ -2,7 +2,7 @@
 
 Scheduling runs on **Posterly** (poster.ly MCP, connector "Poster_ly"). Metricool is deprecated since Oct 31 2026: do not use it. Posts are created with a scheduled time and publish BY THEMSELVES. David reviews slides and caption in chat before any post is created; never publish without his go.
 
-- **Phase 1 (scheduled, unattended, ~07:52 Jakarta):** research today's story, write a brief into the repo, push, and finish with a short message that works as the push notification. Do NOT build slides or touch Posterly.
+- **Phase 1 (scheduled, unattended, ~07:52 Jakarta):** pick today's format and game from the rotation, research it, write a brief into the repo, push, and finish with a short message that works as the push notification. Do NOT build slides or touch Posterly.
 - **Phase 2 (interactive, when David writes "run today's post" and attaches an image, or says "no image"):** read the brief, build the slides, show slides + caption + accounts + time, wait for "go", then create the posts.
 
 ## Accounts and constants (Posterly)
@@ -16,14 +16,33 @@ Workspace f67d2c70-f375-4b22-877a-59087740bd02, timezone Asia/Jakarta. One post 
 - App Store: https://apps.apple.com/app/id6798784324 (bios carry the link; captions say "link in bio").
 - Slides 1080x1350 (4:5), JPEG output. Builder: `pipeline/vbslides.py`, see spec format at the bottom. Instagram rejects anything taller than 9:16.
 
-## Game rotation (default; if no verified story for that game, take the next game with one)
-Mon Pokémon, Tue One Piece, Wed Magic: The Gathering, Thu Yu-Gi-Oh!, Fri Pokémon, Sat Lorcana / Digimon / Riftbound / Union Arena / Gundam (best story), Sun app-feature post (no news, no image needed).
-Check the repo `briefs/` folder for the last 14 days first (every posted story has a brief). Never repeat a story already posted or briefed.
+## Daily rotation (default): format + game
+Not every day is news. Each day has a FORMAT and a game. If the format cannot be done well (no verifiable facts, no image David can supply), fall back to a news story for that game, then to the app-feature post. Never repeat a format+topic pair from the last 14 days of `briefs/`.
+
+| Day | Format | Game |
+|---|---|---|
+| Mon | News | Pokémon |
+| Tue | Evolution / transformation line ("swipe to evolve") | One Piece, Digimon, Yu-Gi-Oh!, MTG (rotate) |
+| Wed | News | Magic: The Gathering |
+| Thu | Binder page of the week ("cards that belong together", `pair` slides) | any game, rotate weekly |
+| Fri | Top 5 ranking (`ranking` slide) or Debut vs Now (`pair` slide) | any game, rotate weekly |
+| Sat | Story or meme: "card I regret buying" (David's own story, ask him) or "can't unsee" card-art memes | any game |
+| Sun | App-feature post (no news, no image needed) | n/a |
+
+News days keep the old game rotation logic (Thu Yu-Gi-Oh!, Sat Lorcana/Digimon/Riftbound/Union Arena/Gundam are used when a format day has nothing usable). Posterly Starter has no post cap, so an extra post on a big news day is allowed, but ask David first.
+
+### Format rules
+- **Evolution / transformation:** one line per post (e.g. a Digimon digivolution line, a Yu-Gi-Oh! fusion chain, a character's card history). Slide 1 photocover, then one `pair` or `photo` slide per stage, last slide `cta`. Card order and names must be verified against the game's official card database.
+- **Binder page of the week:** 2 to 3 `pair` slides of cards whose art connects or complements each other. This is the app's home turf: the caption should say it is a binder-page idea and point to Virtual Binder.
+- **Top 5 ranking:** every price needs a source and a date. Use sold data (eBay sold or a named price guide), never asking prices, put the source and date in the slide `note` and the caption. If prices cannot be verified in this run, switch to Debut vs Now. No prices from memory.
+- **Debut vs Now:** first print next to latest print (or an artist's early vs recent work). Verify both with the official database.
+- **Regret / meme formats:** Phase 1 only proposes the angle and asks David for his own story or the images; nothing is invented about David's purchases.
+- **Images for evergreen formats:** card images must be supplied by David or be official publisher or official card-database images he downloads. Phase 1 lists the exact card names and the official URL for each image. Card sites may be blocked in the sandbox, so Phase 1 gives names and URLs, it does not fetch images.
 
 ## Phase 1: brief (scheduled run)
 1. Attach the repo with add_repo (owner utomon, repo vb-media, access push) and clone it to /home/claude/vb-media if missing (one clone, generous timeout). No push access: stop and report that clearly.
-2. Research. Search for TCG news for today's game from the last ~7 days (releases, product reveals, banlists, results, notable verified sales). Verify the key facts against at least two independent sources, preferring official ones. Facts only from what you verified in this run; paraphrase, never copy text.
-3. Pick ONE story. If nothing verifiable and useful, make it a Sunday-style app-feature brief instead.
+2. Check today's row in the rotation. For a news day: search for TCG news for today's game from the last ~7 days (releases, product reveals, banlists, results, notable verified sales). Verify the key facts against at least two independent sources, preferring official ones. Facts only from what you verified in this run; paraphrase, never copy text.
+3. Pick ONE story or ONE format idea. If nothing verifiable and useful, make it a Sunday-style app-feature brief instead. State the format at the top of the brief.
 4. Write `briefs/YYYY-MM-DD.md` (Jakarta date) containing:
    - game, one-line story, the verified facts, and every source with URL;
    - what is uncertain or labeled "reported";
@@ -82,7 +101,9 @@ App-feature post: slide 1 hook on one feature (page scan, depth-effect cards, st
   {"type":"photo","kicker":"Magic · Reveal","lines":["Two","lines"],"image":"/path/to/davids_image.png","credit":"Wizards of the Coast","body":"One or two short lines"},
   {"type":"detail","kicker":"Coming Oct 23","big":"Oct 23","title":"Product name","rows":[["Label","Value"], ...up to 5]},
   {"type":"point","kicker":"Market","lines":["Two","lines"],"stat":["label","$value","up|down|flat"],"body":["short paragraph"]},
+  {"type":"pair","kicker":"Pokémon · Pair #1","lines":["Display them","side by side"],"images":["/path/a.png","/path/b.png"],"labels":["Left tag","Right tag"],"names":["Card A","Card B"],"body":"One or two short lines","credit":"Publisher"},
+  {"type":"ranking","kicker":"Top 5","lines":["Most wanted","X cards"],"rows":[["Name","Version","$123"], ...up to 5],"note":"Source and date of the prices"},
   {"type":"cta"}
  ]}
 ```
-Limits: photocover `lines` max 2 but use 1 when `accent` is long (2 lines + accent overlaps the swipe text; always open the rendered slide), `accent` about 14 characters max, hook `lines` max 2, `chips` 2 to 3; photo `lines` max 2, `body` 2 short lines; detail `title` max 2 lines, `rows` max 5.
+Limits: photocover `lines` max 2 but use 1 when `accent` is long (2 lines + accent overlaps the swipe text; always open the rendered slide), `accent` about 14 characters max, hook `lines` max 2, `chips` 2 to 3; photo `lines` max 2, `body` 2 short lines; detail `title` max 2 lines, `rows` max 5; pair `lines` max 2, `body` 1 to 2 short lines, `labels`/`names` about 18 characters each; ranking `rows` max 5, `note` one line. Missing or \"PLACEHOLDER\" images draw a dry-run frame.
