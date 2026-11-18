@@ -496,7 +496,7 @@ def _place(im, card, cx, cy, angle=0, glow=(86, 43, 244)):
 
 
 def pair(sp, idx, total, ft):
-    """Two big overlapping tilted cards, no frames. sp: kicker, lines (max 2), images [a, b], names [a, b], labels [a, b] (small, under the name), body (optional ONE short line under the headline), credit."""
+    """Two big cards side by side, straight, not overlapping, no frames. sp: kicker, lines (max 2), images [a, b], names [a, b], labels [a, b] (small, under the name), body (optional ONE short line under the headline), credit."""
     im = canvas(); chrome(im, idx, total)
     pill(im, (M, 190), sp["kicker"].upper())
     y = 350
@@ -504,20 +504,21 @@ def pair(sp, idx, total, ft):
         text(im, (M, y), ln.upper(), F(XB, 84), WHITE); y += 84
     if sp.get("body"):
         text(im, (M, y + 22), wrap(sp["body"], F(MED, 32), W - 2 * M)[0], F(MED, 32), (205, 205, 220)); y += 50
-    ch = 520; cw = int(ch / 1.395)
+    gap = 40
+    cw = (W - 2 * M - gap) // 2; ch = int(cw * 1.395)
+    if ch > 570: ch = 570; cw = int(ch / 1.395)
     cy = y + 30 + ch // 2
     imgs = sp.get("images") or [None, None]
-    spread = cw // 2 - 24
-    _place(im, _card_img(cw, ch, imgs[0]), W // 2 - spread, cy, 4)
-    _place(im, _card_img(cw, ch, imgs[1]), W // 2 + spread, cy, -4)
-    ny = cy + ch // 2 + 72
-    for i, sx in enumerate((-1, 1)):
+    xs = (W // 2 - gap // 2 - cw // 2, W // 2 + gap // 2 + cw // 2)
+    for i in range(2):
+        _place(im, _card_img(cw, ch, imgs[i]), xs[i], cy, 0)
+    ny = cy + ch // 2 + 62
+    for i in range(2):
         nm = (sp.get("names") or ["", ""])[i]; lab = (sp.get("labels") or ["", ""])[i]
-        cx = W // 2 + sx * (spread + 20)
         if nm:
-            text(im, (cx, ny), nm, fit(SEMI, nm, 34, 440), WHITE, 0, "ms")
+            text(im, (xs[i], ny), nm, fit(SEMI, nm, 34, cw), WHITE, 0, "ms")
         if lab:
-            text(im, (cx, ny + 36), lab.upper(), F(SEMI, 22), LAV, 4, "ms")
+            text(im, (xs[i], ny + 34), lab.upper(), F(SEMI, 22), LAV, 4, "ms")
     if sp.get("credit"):
         text(im, (W - M, H - 62), "Image: " + sp["credit"], F(MED, 22), (110, 110, 130), 0, "rs")
     footer(im, ft); return im
