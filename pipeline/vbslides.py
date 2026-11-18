@@ -458,11 +458,8 @@ def photocover(sp, idx, total, ft):
     return im
 
 
-def _cardbox(im, x, y, cw, ch, image, label=""):
-    """Paste a card image (uncropped, rounded, shadowed) at x,y sized cw x ch. image 'PLACEHOLDER' (or missing file) draws a dry-run frame."""
-    sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(sh).rounded_rectangle((x + 6, y + 14, x + cw + 6, y + ch + 14), 22, fill=(0, 0, 0, 170))
-    im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(18)))
+def _card_img(cw, ch, image):
+    """Rounded card image (RGBA) at cw x ch. image 'PLACEHOLDER' or a missing file draws a dry-run frame."""
     if image and image != "PLACEHOLDER" and os.path.exists(image):
         src = Image.open(os.path.abspath(image)).convert("RGBA")
         sc = max(cw / src.width, ch / src.height)
@@ -474,64 +471,95 @@ def _cardbox(im, x, y, cw, ch, image, label=""):
         gd = ImageDraw.Draw(src)
         for yy in range(ch):
             t = yy / ch
-            gd.line((0, yy, cw, yy), fill=(int(40 + 50 * t), int(30 + 10 * t), int(110 + 90 * (1 - t)), 255))
-        text(src, (cw // 2, ch // 2), "CARD IMAGE", F(SEMI, 30), (210, 200, 255), 4, "mm")
+            gd.line((0, yy, cw, yy), fill=(int(60 + 120 * t), int(40 + 60 * (1 - t)), int(150 + 90 * (1 - t)), 255))
+        text(src, (cw // 2, ch // 2), "CARD", F(SEMI, max(18, cw // 12)), (235, 225, 255), 4, "mm")
     mask = Image.new("L", (cw, ch), 0)
-    ImageDraw.Draw(mask).rounded_rectangle((0, 0, cw - 1, ch - 1), 18, fill=255)
-    im.paste(src, (x, y), mask)
-    ImageDraw.Draw(im).rounded_rectangle((x, y, x + cw - 1, y + ch - 1), 18, outline=(106, 80, 220), width=3)
+    ImageDraw.Draw(mask).rounded_rectangle((0, 0, cw - 1, ch - 1), max(8, cw // 22), fill=255)
+    src.putalpha(mask)
+    return src
+
+
+def _place(im, card, cx, cy, angle=0, glow=(86, 43, 244)):
+    """Composite a card centred at cx, cy with optional tilt, soft shadow and purple glow. No border."""
+    if angle:
+        card = card.rotate(angle, resample=Image.BICUBIC, expand=True)
+    x, y = int(cx - card.width / 2), int(cy - card.height / 2)
+    alpha = card.split()[3]
+    sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    sh.paste((0, 0, 0, 190), (x + 8, y + 22), alpha)
+    im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(22)))
+    if glow:
+        gl = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        gl.paste(glow + (120,), (x, y), alpha)
+        im.alpha_composite(gl.filter(ImageFilter.GaussianBlur(36)))
+    im.alpha_composite(card, (x, y))
 
 
 def pair(sp, idx, total, ft):
-    """Two cards side by side ("better together", "debut vs now"). sp: kicker, lines (max 2), images [a, b], labels [a, b] (small caps under each card), names [a, b] (optional), body (1-2 short lines), credit."""
+    """Two big overlapping tilted cards, no frames. sp: kicker, lines (max 2), images [a, b], names [a, b], labels [a, b] (small, under the name), body (optional ONE short line under the headline), credit."""
     im = canvas(); chrome(im, idx, total)
     pill(im, (M, 190), sp["kicker"].upper())
     y = 350
     for ln in sp["lines"][:2]:
         text(im, (M, y), ln.upper(), F(XB, 84), WHITE); y += 84
-    ch = 520
-    cw = int(ch / 1.395)
-    gap = 44
-    x0 = (W - (2 * cw + gap)) // 2
-    top = y + 10
-    for i in range(2):
-        x = x0 + i * (cw + gap)
-        _cardbox(im, x, top, cw, ch, sp["images"][i] if sp.get("images") else None)
-        lab = (sp.get("labels") or ["", ""])[i]
-        if lab:
-            text(im, (x + cw // 2, top + ch + 44), lab.upper(), F(SEMI, 24), LAV, 4, "ms")
-        nm = (sp.get("names") or ["", ""])[i]
+    if sp.get("body"):
+        text(im, (M, y + 22), wrap(sp["body"], F(MED, 32), W - 2 * M)[0], F(MED, 32), (205, 205, 220)); y += 50
+    ch = 520; cw = int(ch / 1.395)
+    cy = y + 30 + ch // 2
+    imgs = sp.get("images") or [None, None]
+    spread = cw // 2 - 24
+    _place(im, _card_img(cw, ch, imgs[0]), W // 2 - spread, cy, 4)
+    _place(im, _card_img(cw, ch, imgs[1]), W // 2 + spread, cy, -4)
+    ny = cy + ch // 2 + 72
+    for i, sx in enumerate((-1, 1)):
+        nm = (sp.get("names") or ["", ""])[i]; lab = (sp.get("labels") or ["", ""])[i]
+        cx = W // 2 + sx * (spread + 20)
         if nm:
-            text(im, (x + cw // 2, top + ch + 86), nm, fit(MED, nm, 30, cw), (205, 205, 220), 0, "ms")
-    by = top + ch + 146
-    for ln in wrap(sp.get("body", ""), F(MED, 34), W - 2 * M)[:2]:
-        text(im, (M, by), ln, F(MED, 34), (205, 205, 220)); by += 46
+            text(im, (cx, ny), nm, fit(SEMI, nm, 34, 440), WHITE, 0, "ms")
+        if lab:
+            text(im, (cx, ny + 36), lab.upper(), F(SEMI, 22), LAV, 4, "ms")
     if sp.get("credit"):
         text(im, (W - M, H - 62), "Image: " + sp["credit"], F(MED, 22), (110, 110, 130), 0, "rs")
     footer(im, ft); return im
 
 
+def _badge(im, x, y, label):
+    d = ImageDraw.Draw(im)
+    f = F(XB, 40); w = int(tw(f, label)) + 30
+    d.rounded_rectangle((x, y, x + w, y + 54), 16, fill=PURPLE + (255,))
+    text(im, (x + w // 2, y + 28), label, f, WHITE, 0, "mm")
+
+
 def ranking(sp, idx, total, ft):
-    """Ranked list with a big value per row. sp: kicker, lines (max 2), rows [[name, sub, value], ...] (max 5), note (source and date line, REQUIRED for prices)."""
+    """Top 5 with thumbnails: #1 hero card + 4 smaller cards. sp: kicker, lines (max 2), rows [[name, sub, value, image], ...] (5), note (source and date of prices, REQUIRED)."""
     im = canvas(); chrome(im, idx, total)
     pill(im, (M, 190), sp["kicker"].upper())
-    y = 360
+    y = 350
     for ln in sp["lines"][:2]:
-        text(im, (M, y), ln.upper(), F(XB, 100), WHITE); y += 96
-    ry = y + 40
+        text(im, (M, y), ln.upper(), F(XB, 84), WHITE); y += 84
     rows = sp["rows"][:5]
-    rh = min(150, (H - 170 - ry) // max(len(rows), 1))
-    d = ImageDraw.Draw(im)
-    for n, (name, sub, val) in enumerate(rows, 1):
-        top = ry + (n - 1) * rh
-        d.rounded_rectangle((M, top, W - M, top + rh - 16), 22, fill=(22, 18, 48), outline=(70, 55, 150), width=2)
-        text(im, (M + 36, top + (rh - 16) // 2), f"#{n}", F(XB, 72), LAV, 0, "lm")
-        vf = F(XB, 64); vw = tw(vf, val)
-        text(im, (W - M - 36, top + (rh - 16) // 2), val.upper(), vf, WHITE, 0, "rm")
-        nf = fit(SEMI, name, 38, W - 2 * M - 150 - vw - 60)
-        text(im, (M + 150, top + (rh - 16) // 2 - (14 if sub else 0)), name, nf, WHITE, 0, "lm")
-        if sub:
-            text(im, (M + 150, top + (rh - 16) // 2 + 28), sub, F(MED, 26), MUTE, 0, "lm")
+    name, sub, val = rows[0][0], rows[0][1], rows[0][2]
+    img = rows[0][3] if len(rows[0]) > 3 else None
+    hch = 300; hcw = int(hch / 1.395); top = y + 20
+    _place(im, _card_img(hcw, hch, img), M + hcw // 2 + 8, top + hch // 2, -3)
+    _badge(im, M, top - 6, "#1")
+    x = M + hcw + 56; maxw = W - M - x
+    vf = fit(XB, val.upper(), 190, maxw)
+    grad_text(im, (x, top + 175), val.upper(), vf, (190, 170, 255), (120, 90, 255))
+    ly = top + 232
+    for ln in wrap(name, F(SEMI, 38), maxw)[:2]:
+        text(im, (x, ly), ln, F(SEMI, 38), WHITE); ly += 46
+    if sub:
+        text(im, (x, ly + 2), sub.upper(), F(SEMI, 22), LAV, 4)
+    sch = 225; scw = int(sch / 1.395)
+    colw = (W - 2 * M) // 4; sy = top + hch + 50
+    for i, r in enumerate(rows[1:5]):
+        mx = M + colw * i + colw // 2
+        simg = r[3] if len(r) > 3 else None
+        _place(im, _card_img(scw, sch, simg), mx, sy + sch // 2, 0, glow=(70, 40, 200))
+        _badge(im, mx - scw // 2 - 8, sy - 10, f"#{i + 2}")
+        text(im, (mx, sy + sch + 48), r[2], F(XB, 52), WHITE, 0, "ms")
+        text(im, (mx, sy + sch + 78), r[1].upper(), F(SEMI, 17), MUTE, 2, "ms")
     if sp.get("note"):
         text(im, (M, H - 108), sp["note"], F(MED, 24), (150, 150, 170))
     footer(im, ft); return im
