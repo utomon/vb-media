@@ -106,4 +106,4 @@ App-feature post: slide 1 hook on one feature (page scan, depth-effect cards, st
   {"type":"cta"}
  ]}
 ```
-Limits: photocover `lines` max 2 but use 1 when `accent` is long (2 lines + accent overlaps the swipe text; always open the rendered slide), `accent` about 14 characters max, hook `lines` max 2, `chips` 2 to 3; photo `lines` max 2, `body` 2 short lines; detail `title` max 2 lines, `rows` max 5; pair `lines` max 2, `body` 1 to 2 short lines, `labels`/`names` about 18 characters each; ranking `rows` max 5, `note` one line. Missing or \"PLACEHOLDER\" images draw a dry-run frame.
+Limits: photocover `lines` max 2 but use 1 when `accent` is long (2 lines + accent overlaps the swipe text; always open the rendered slide), `accent` about 14 characters max, hook `lines` max 2, `chips` 2 to 3; photo `lines` max 2, `body` 2 short lines; detail `title` max 2 lines, `rows` max 5; pair `lines` max 2, `body` 1 to 2 short lines, `labels`/`names` about 18 characters each; ranking `rows` max 5, `note` one line. Missing or "PLACEHOLDER" images draw a dry-run frame.
