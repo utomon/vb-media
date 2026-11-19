@@ -12,7 +12,7 @@ Workspace f67d2c70-f375-4b22-877a-59087740bd02, timezone Asia/Jakarta. One post 
 - TikTok "Virtual Binder on App Store": 2268
 - X @virtual_binder: 2269
 - Pinterest "Virtual Binder": 2270 (default board "TCG News & Release Dates", board_id 1148699517398033264, public)
-- Post time: 10:00 Asia/Jakarta. If the 10:00 slot is missed (already past 09:45 when creating the post), do NOT move it to the next day: schedule it for 19:00 Asia/Jakarta the SAME DAY and say the new time. Only if it is already past 18:30 ask David.
+- Post times: TWO posts a day. Post A at 10:00 Asia/Jakarta, Post B at 19:00 Asia/Jakarta. If a slot is missed (past 09:45 for A, past 18:45 for B when creating the post), do NOT drop it and do NOT stack posts: use the next free slot (A moves to 19:00 only if B is not already taking it, otherwise to 21:00; B moves to 21:00 or 12:00 next day) and say the new time. Keep posts at least 3 hours apart. If more than one slot is missed, ask David.
 - App Store: https://apps.apple.com/app/id6798784324 (bios carry the link; captions say "link in bio").
 - Slides 1080x1350 (4:5), JPEG output. Builder: `pipeline/vbslides.py`, see spec format at the bottom. Instagram rejects anything taller than 9:16.
 
@@ -29,20 +29,22 @@ Evergreen formats (evolution lines, binder pages, rankings, Debut vs Now) take c
 - **Images:** `image_url` is the stored original card-database image (hosts: cards.scryfall.io, assets.tcgdex.net, www.pokemon-card.com, images.ygoprodeck.com, tcgplayer-cdn.tcgplayer.com, product-images.tcgplayer.com, digimoncard.com, images.digimoncard.io, optcgapi.com, www.onepiece-cardgame.com, cards.lorcast.io). TCGdex URLs ending `low.png` are low resolution: use `high.png`. Lorcana images are AVIF (Pillow reads them). Download each image, open it, and check it is the right card and sharp enough at the slide size before building. Credit the source on the slide.
 - **Known data problems (verify, do not trust blindly):** skip any card with no default price when the format needs one; only 9 placeholder cards (Yu-Gi-Oh!) are named "???" with no set and no price: skip any card with no set code or a "???" name, but Yu-Gi-Oh! itself is fine to use (an unfiltered search sorts by name, so "???" comes first: always filter with q, set or limit and check results). One Piece set codes are correct: a card's `id` keeps the code PRINTED on the card, while `set` is the product it was released in, so reprints and SP parallels sit in a later set (e.g. ST31-004 Luffy is an SP card in OP-17, and PRB-01/PRB-02 hold OP01 to OP09 reprints). In a post, quote the printed code (from the id) and name the set it came out in. One Piece names mix full-width and half-width characters (e.g. the D in Monkey D. Luffy): normalise when comparing. Magic prices on prod are about 1 day old (a week-old price was UAT's test copy), but keep the 7-day rule.
 
-## Daily rotation (default): format + game
-Not every day is news. Each day has a FORMAT and a game. If the format cannot be done well (no verifiable facts, no image David can supply), fall back to a news story for that game, then to the app-feature post. Never repeat a format+topic pair from the last 14 days of `briefs/`.
+## Daily rotation (default): 2 posts a day, format + game
+Two posts every day: Post A (10:00) and Post B (19:00). Rule of thumb: if one is news, the other is an evergreen format, so the day never has two posts of the same kind. Each post has a FORMAT and a game. If the format cannot be done well (no verifiable facts, no usable image), fall back to a news story for that game, then to the app-feature post. Never repeat a format+topic pair from the last 14 days of `briefs/`, and never use the same story, card or character in A and B on the same day.
 
-| Day | Format | Game |
+| Day | Post A (10:00) | Post B (19:00) |
 |---|---|---|
-| Mon | News | Pokémon |
-| Tue | Evolution / transformation line ("swipe to evolve") | One Piece, Digimon, Yu-Gi-Oh!, MTG (rotate) |
-| Wed | News | Magic: The Gathering |
-| Thu | Binder page of the week ("cards that belong together", `pair` slides) | any game, rotate weekly |
-| Fri | Top 5 ranking (`ranking` slide) or Debut vs Now (`pair` slide) | any game, rotate weekly |
-| Sat | Story or meme: "card I regret buying" (David's own story, ask him) or "can't unsee" card-art memes | any game |
-| Sun | App-feature post (no news, no image needed) | n/a |
+| Mon | News: Pokémon | Binder page of the week (`pair`), any game |
+| Tue | Evolution / transformation line ("swipe to evolve"): One Piece, Digimon, Yu-Gi-Oh!, MTG (rotate) | News: One Piece or Digimon |
+| Wed | News: Magic: The Gathering | Top 5 ranking (`ranking`), any game |
+| Thu | Binder page of the week (`pair`), any game, rotate | News: Yu-Gi-Oh! or Lorcana |
+| Fri | Top 5 ranking or Debut vs Now (`pair`), any game | News: Pokémon |
+| Sat | Story or meme: "card I regret buying" (David's own story, ask him) or "can't unsee" card-art memes | Evolution line or Debut vs Now, any game |
+| Sun | App-feature post (no news, no image needed) | Binder page of the week or Debut vs Now, any game |
 
-News days keep the old game rotation logic (Thu Yu-Gi-Oh!, Sat Lorcana/Digimon/Riftbound/Union Arena/Gundam are used when a format day has nothing usable). Posterly Starter has no post cap, so an extra post on a big news day is allowed, but ask David first.
+News posts keep the old game rotation logic (Riftbound, Union Arena, Gundam, Lorcana, Digimon when a slot has nothing usable). Posterly Starter has no post cap.
+
+**X is the exception:** the plan allows 10 X posts a month (about 2 a week). Do NOT add X to every post. Pick the strongest post of the week for X (usually a news post) and leave X out of the rest. Call `get_x_posting_quota` first and ask David which post if unsure. Facebook, Instagram, TikTok and Pinterest get both posts every day.
 
 ### Format rules
 - **Evolution / transformation:** one line per post (e.g. a Digimon digivolution line, a Yu-Gi-Oh! fusion chain, a character's card history). Slide 1 photocover, then one `pair` or `photo` slide per stage, last slide `cta`. Card order and names must be verified against the game's official card database.
@@ -53,23 +55,23 @@ News days keep the old game rotation logic (Thu Yu-Gi-Oh!, Sat Lorcana/Digimon/R
 - **Images for evergreen formats:** use the Card data API above when the environment has it (image_url is the stored official card-database image). If the API or an image host is unreachable, fall back to listing the exact card names and the official URL for each image for David to download.
 
 ## Phase 1: brief (scheduled run)
-1. Attach the repo with add_repo (owner utomon, repo vb-media, access push) and clone it to /home/claude/vb-media if missing (one clone, generous timeout). No push access: stop and report that clearly.
-2. Check today's row in the rotation. For a news day: search for TCG news for today's game from the last ~7 days (releases, product reveals, banlists, results, notable verified sales). Verify the key facts against at least two independent sources, preferring official ones. Facts only from what you verified in this run; paraphrase, never copy text.
+1. Attach the repo with add_repo (owner utomon, repo vb-media, access push) and clone it into the session home directory if missing (use the path add_repo and register_repo_root accept, e.g. /home/user/vb-media or /home/claude/vb-media; one clone, generous timeout). No push access: stop and report that clearly.
+2. Check today's row in the rotation and prepare BOTH posts, A and B (steps 2 to 4 once per post). For a news day: search for TCG news for today's game from the last ~7 days (releases, product reveals, banlists, results, notable verified sales). Verify the key facts against at least two independent sources, preferring official ones. Facts only from what you verified in this run; paraphrase, never copy text.
 3. Pick ONE story or ONE format idea. If nothing verifiable and useful, make it a Sunday-style app-feature brief instead. State the format at the top of the brief.
-4. Write `briefs/YYYY-MM-DD.md` (Jakarta date) containing:
+4. Write `briefs/YYYY-MM-DD-a.md` and `briefs/YYYY-MM-DD-b.md` (Jakarta date), each containing:
    - game, one-line story, the verified facts, and every source with URL;
    - what is uncertain or labeled "reported";
    - the proposed `spec.json` (4 to 6 slides) in a json code block. **Slide 1 is ALWAYS a clickbait `photocover`** (the official image full-bleed, image path left as `IMAGE`, big punchy headline: ONE white line + ONE gradient `accent` line, e.g. "Heroines Edition" / "Vol.2 · Oct 30"; max about 14 characters per line is safe). Do NOT open with a `hook` slide and do NOT use a separate `photo` slide for the same image. With "no image", fall back to a `hook` slide. Headlines must create curiosity or urgency (reveals live, banned, drops Oct 30) while staying factual;
    - the proposed caption (Instagram/Facebook/TikTok), a short X version, and a TikTok title;
    - **Image to download:** the direct URL of the official page/press image that fits (publisher domain only), which slide it goes on, and the credit line.
 5. Delete files in `briefs/` older than 14 days (`git rm`). Commit and push. Never put credentials in files or messages.
-6. Final message (it becomes the phone notification): game, the story in one line, and "Reply with the image from <URL> and say 'run today's post'." No long text.
+6. Final message (it becomes the phone notification): for each of the two posts, the game and format in one line. No long text.
 
 ## Phase 2: build and post (interactive)
-1. Make sure the repo is attached (add_repo, push) and pulled; read today's `briefs/YYYY-MM-DD.md` (or the latest, check by date, not mtime). Re-verify any fact that looks time-sensitive.
+1. Make sure the repo is attached (add_repo, push) and pulled; read today's `briefs/YYYY-MM-DD-a.md` and `-b.md` (or the latest, check by date, not mtime). Work through post A, then post B. Re-verify any fact that looks time-sensitive.
 2. David's attached image goes on slide 1 as the `photocover` (use `focus`/`vfocus`/`zoom` so faces or the product are not cropped; `zoom` 1.2 with `vfocus` 0 hides text baked into the bottom of banners). Credit the publisher in the caption ("Source and image: <publisher>"). Never use a plain `hook` opener when an image exists. With "no image", use a `hook` opener and text-led slides. Small images are fine on the cover but check they are not too soft.
 3. Build: `python3 -I pipeline/vbslides.py spec.json out/` (keep spec and out/ outside the repo). Open EVERY slide image and check text fit, overlaps, cropping and numbers against the brief. Fix and rebuild until clean. Send the slides to David.
-4. Show David the full caption per platform, the accounts and the time, and wait for his explicit "go".
+4. Show David the full caption per platform, the accounts (X only on the post chosen for X) and the time of each post, and wait for his explicit "go" for each post (one "go" may cover both if he says so).
 5. Upload the JPEGs to `p/<random16hex>/slide_N.jpg` in the repo, commit, push, confirm each raw.githubusercontent.com URL returns 200 image/jpeg.
 6. Posterly `upload_media` with `url` = each raw URL (one call per slide, in order). Use the returned assets.poster.ly URLs as `media_urls`. Then `git rm` the `p/<id>/` folder, commit, push.
 7. `validate_post` (dry run) for every account, then `create_post` with `confirm: true` for each (see below). Then `get_post` on each id and confirm the caption is NOT empty and status is scheduled.
