@@ -16,6 +16,19 @@ Workspace f67d2c70-f375-4b22-877a-59087740bd02, timezone Asia/Jakarta. One post 
 - App Store: https://apps.apple.com/app/id6798784324 (bios carry the link; captions say "link in bio").
 - Slides 1080x1350 (4:5), JPEG output. Builder: `pipeline/vbslides.py`, see spec format at the bottom. Instagram rejects anything taller than 9:16.
 
+## Card data API (Virtual Binder content API)
+Evergreen formats (evolution lines, binder pages, rankings, Debut vs Now) take card names, images and prices from the Virtual Binder content API. Use it only from the cloud environment "Virtual Binder content (UAT)" or its prod successor, where CONTENT_API_TOKEN is set as a secret. Never print or commit the token. Read-only, 30 requests a minute (pace about 2.5 s apart, retry once on 429 or a connection reset).
+- Base URL: UAT https://uat.virtualbinder.app/internal/content. Prod https://api.virtualbinder.app/internal/content (only the base URL changes). Header: `Authorization: Bearer $CONTENT_API_TOKEN`.
+- Endpoints (GET): `/cards?game=&q=&set=&number=&rarity=&illustrator=&language=&limit=&offset=`, `/cards/{id}`, `/top-by-price?game=&q=&language=&variant=&limit=`, `/sets?game=&language=`. Games: pokemon, mtg, yugioh, onepiece, digimon, lorcana, gundam, riftbound, unionarena. Languages: en, ja.
+- Each card: id, game, language, name, english_name, set, collector_number, printed_total, rarity, variant, finishes, illustrator, image_url, prices.
+- **Prices (these get published):** quote ONLY the `prices` entry with `is_default: true`. Say the source and `updated_at` date in the slide `note` and the caption. Never quote `price_type: "unknown"` (Yu-Gi-Oh! set prices, some are placeholders like $999.99). `condition` is always null. A default price may also appear a second time as a finish: do not count it twice.
+  - USD market price: TCGplayer via TCGCSV (Pokémon, Yu-Gi-Oh!, English One Piece and Digimon, Lorcana, Gundam, Riftbound, Union Arena); Magic from Scryfall's TCGplayer feed.
+  - Japanese One Piece and Digimon: Yuyu-tei shop ASKING price in JPY (`retail`, not a sold price). Quote yen, or say "shop price, about $X". `usd_amount` is our conversion when `usd_converted_from` is "JPY". Never mix shop prices and market prices in one ranking.
+  - A ranking needs prices updated within 7 days. Anything older: leave it out or label the date on the slide.
+  - UAT prices come from a test copy of the database. Never publish prices from UAT. Prod is the one to post prices from. On UAT, pair and evolution formats can be built and previewed, rankings cannot be posted.
+- **Images:** `image_url` is the stored original card-database image (hosts: cards.scryfall.io, assets.tcgdex.net, www.pokemon-card.com, images.ygoprodeck.com, tcgplayer-cdn.tcgplayer.com, product-images.tcgplayer.com, digimoncard.com, images.digimoncard.io, optcgapi.com, www.onepiece-cardgame.com, cards.lorcast.io). TCGdex URLs ending `low.png` are low resolution: use `high.png`. Lorcana images are AVIF (Pillow reads them). Download each image, open it, and check it is the right card and sharp enough at the slide size before building. Credit the source on the slide.
+- **Known data problems (verify, do not trust blindly):** skip any card with no default price when the format needs one; Yu-Gi-Oh! cards currently have name "???" and no prices (do not use Yu-Gi-Oh! from the API until that is fixed); some One Piece ids do not match their set code (confirm the card name, number and set against the printed card before using); One Piece names mix full-width and half-width characters; Magic prices can be a week old.
+
 ## Daily rotation (default): format + game
 Not every day is news. Each day has a FORMAT and a game. If the format cannot be done well (no verifiable facts, no image David can supply), fall back to a news story for that game, then to the app-feature post. Never repeat a format+topic pair from the last 14 days of `briefs/`.
 
@@ -37,7 +50,7 @@ News days keep the old game rotation logic (Thu Yu-Gi-Oh!, Sat Lorcana/Digimon/R
 - **Top 5 ranking:** every price needs a source and a date. Use sold data (eBay sold or a named price guide), never asking prices, put the source and date in the slide `note` and the caption. If prices cannot be verified in this run, switch to Debut vs Now. No prices from memory.
 - **Debut vs Now:** first print next to latest print (or an artist's early vs recent work). Verify both with the official database.
 - **Regret / meme formats:** Phase 1 only proposes the angle and asks David for his own story or the images; nothing is invented about David's purchases.
-- **Images for evergreen formats:** card images must be supplied by David or be official publisher or official card-database images he downloads. Phase 1 lists the exact card names and the official URL for each image. Card sites may be blocked in the sandbox, so Phase 1 gives names and URLs, it does not fetch images.
+- **Images for evergreen formats:** use the Card data API above when the environment has it (image_url is the stored official card-database image). If the API or an image host is unreachable, fall back to listing the exact card names and the official URL for each image for David to download.
 
 ## Phase 1: brief (scheduled run)
 1. Attach the repo with add_repo (owner utomon, repo vb-media, access push) and clone it to /home/claude/vb-media if missing (one clone, generous timeout). No push access: stop and report that clearly.
