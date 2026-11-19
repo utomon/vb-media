@@ -46,6 +46,18 @@ News posts keep the old game rotation logic (Riftbound, Union Arena, Gundam, Lor
 
 **X is the exception:** the plan allows 10 X posts a month (about 2 a week). Do NOT add X to every post. Pick the strongest post of the week for X (usually a news post) and leave X out of the rest. Call `get_x_posting_quota` first and ask David which post if unsure. Facebook, Instagram, TikTok and Pinterest get both posts every day.
 
+### Two runs: daily news, weekly batch for everything else
+- **Daily run (07:52 Jakarta): news posts only.** News is fresh, so it is researched, built and approved the same day. It covers today's news slot(s) from the table (Mon A, Tue B, Wed A, Thu B, Fri B). On days with no news slot, the daily run does nothing and sends no notification.
+- **Weekly batch run (once a week, default Sunday): every non-news slot for the next 7 days.** Evergreen formats (binder pages, evolution lines, Top 5 rankings, Debut vs Now, regret/meme, app-feature) are planned, built and approved together, then scheduled on Posterly at their slots (A 10:00, B 19:00) through the week. The batch covers the 7 days starting the day after the batch day, so no slot is covered twice. Rotate games across the week so no game repeats in a format.
+- **Batch rules:**
+  - Same data and image rules as the daily run (Card data API section). Check `briefs/` for the last 14 days and for earlier slots in the same batch so nothing repeats.
+  - Briefs are written to `briefs/YYYY-MM-DD-a.md` and `-b.md` for each slot's date, the same naming as the daily run.
+  - **Prices go stale:** a ranking slide shows "Prices as of <date>, <source>". A Top 5 slot more than 4 days after the batch day is swapped for Debut vs Now (or built by the daily run that morning if David prefers). Never schedule a ranking with prices older than 7 days at its post time.
+  - **Regret / meme Saturday slot:** needs David's own story or the meme images. Ask in the batch notification; if there is no answer, use "can't unsee" card-art from the API or swap the slot for Debut vs Now.
+  - **Approval:** show the whole week in one go (post by post: slides, captions, platforms, date and time). David approves all, some, or gives edits. Schedule only what he approves. After scheduling, `get_post` every post and confirm non-empty captions and the right times.
+  - X: only the one post chosen for X that week (about 2 a week in total counting news). Check `get_x_posting_quota` and ask David which.
+  - Scheduled posts later in the week are not re-verified at post time, so keep claims evergreen (no "just released" or "this week") and keep the facts and prices in the posts dated.
+
 ### Format rules
 - **Evolution / transformation:** one line per post (e.g. a Digimon digivolution line, a Yu-Gi-Oh! fusion chain, a character's card history). Slide 1 photocover, then one `pair` or `photo` slide per stage, last slide `cta`. Card order and names must be verified against the game's official card database.
 - **Binder page of the week:** 2 to 3 `pair` slides of cards whose art connects or complements each other. This is the app's home turf: the caption should say it is a binder-page idea and point to Virtual Binder.
@@ -56,7 +68,7 @@ News posts keep the old game rotation logic (Riftbound, Union Arena, Gundam, Lor
 
 ## Phase 1: brief (scheduled run)
 1. Attach the repo with add_repo (owner utomon, repo vb-media, access push) and clone it into the session home directory if missing (use the path add_repo and register_repo_root accept, e.g. /home/user/vb-media or /home/claude/vb-media; one clone, generous timeout). No push access: stop and report that clearly.
-2. Check today's row in the rotation and prepare BOTH posts, A and B (steps 2 to 4 once per post). For a news day: search for TCG news for today's game from the last ~7 days (releases, product reveals, banlists, results, notable verified sales). Verify the key facts against at least two independent sources, preferring official ones. Facts only from what you verified in this run; paraphrase, never copy text.
+2. The daily run covers NEWS slots only. Check today's row: prepare each news slot (A and/or B) that today has; if today has none, stop with no notification. Non-news slots are built by the weekly batch (see "Two runs"). Steps 2 to 4 once per news post. For a news day: search for TCG news for today's game from the last ~7 days (releases, product reveals, banlists, results, notable verified sales). Verify the key facts against at least two independent sources, preferring official ones. Facts only from what you verified in this run; paraphrase, never copy text.
 3. Pick ONE story or ONE format idea. If nothing verifiable and useful, make it a Sunday-style app-feature brief instead. State the format at the top of the brief.
 4. Write `briefs/YYYY-MM-DD-a.md` and `briefs/YYYY-MM-DD-b.md` (Jakarta date), each containing:
    - game, one-line story, the verified facts, and every source with URL;
